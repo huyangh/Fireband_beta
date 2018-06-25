@@ -4,39 +4,39 @@
 #include "max30102.h"
 
 
-s32 MAX_i2c_init(void)
+void MAX_i2c_init(void)
 {
-	s32 ret1, ret2, ret3, ret4;
-
-	ret1 = Ql_IIC_Init(1,PINNAME_RI,PINNAME_DCD,true);
-	
-	ret3 = Ql_IIC_Config(1,TRUE, I2C_WRITE_ADDR, 300);
 	
 
-	if(ret1 == 	 QL_RET_OK){
-   		mprintf("pins(SCL=%d,SDA=%d) IIC controller Ql_IIC_Init channel 1 success ret=%d\r\n",PINNAME_RI,PINNAME_DCD,ret1);
-    }else if(ret1 == QL_RET_ERR_NOSUPPORTPIN){
-    	mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is invalid\r\n");
-	}else if(ret1 == QL_RET_ERR_PINALREADYSUBCRIBE){
-		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is in use in other places\r\n");
-	}else if(ret1 == QL_RET_ERR_I2CHWFAILED){
-		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 hardware issue\r\n");
-	}else{
-		mprintf("unknown issue just can't init!");
-	}
-
-
-
-	if(ret3 == QL_RET_OK)
-	{
-		mprintf("IIC controller Ql_IIC_Config channel 1 config success ret=%d\r\n",ret3);
-	}else{
-		mprintf("IIC controller Ql_IIC_Config channel 1 fail ret=%d\r\n",ret3);
-	}
+	Ql_IIC_Init(1,PINNAME_RI,PINNAME_DCD,true);
+	
+	Ql_IIC_Config(1,TRUE, I2C_WRITE_ADDR, 300);
+	
+//
+//	if(ret1 == 	 QL_RET_OK){
+//   		mprintf("pins(SCL=%d,SDA=%d) IIC controller Ql_IIC_Init channel 1 success ret=%d\r\n",PINNAME_RI,PINNAME_DCD,ret1);
+//    }else if(ret1 == QL_RET_ERR_NOSUPPORTPIN){
+//    	mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is invalid\r\n");
+//	}else if(ret1 == QL_RET_ERR_PINALREADYSUBCRIBE){
+//		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is in use in other places\r\n");
+//	}else if(ret1 == QL_RET_ERR_I2CHWFAILED){
+//		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 hardware issue\r\n");
+//	}else{
+//		mprintf("unknown issue just can't init!");
+//	}
+//
+//
+//
+//	if(ret3 == QL_RET_OK)
+//	{
+//		mprintf("IIC controller Ql_IIC_Config channel 1 config success ret=%d\r\n",ret3);
+//	}else{
+//		mprintf("IIC controller Ql_IIC_Config channel 1 fail ret=%d\r\n",ret3);
+//	}
 
 }
 
-u8 maxim_max30102_write_reg(u8 uch_addr, u8 uch_data)
+bool maxim_max30102_write_reg(u8 uch_addr, u8 uch_data)
 /**
 * \brief        Write a value to a MAX30102 register
 * \par          Details
@@ -54,12 +54,12 @@ u8 maxim_max30102_write_reg(u8 uch_addr, u8 uch_data)
     ach_i2c_data[1]=uch_data;
 
 	if(Ql_IIC_Write(1, I2C_WRITE_ADDR, ach_i2c_data, sizeof(ach_i2c_data)) > 0)
-        return 1;
+        return true;
     else
-        return 0;
+        return false;
 }
 
-u8 maxim_max30102_read_reg(u8 uch_addr, u8 *puch_data)
+bool maxim_max30102_read_reg(u8 uch_addr, u8 *puch_data)
 /**
 * \brief        Read a MAX30102 register
 * \par          Details
@@ -73,24 +73,24 @@ u8 maxim_max30102_read_reg(u8 uch_addr, u8 *puch_data)
 {
 
 
-  u8 ch_i2c_data;
+  bool ch_i2c_data;
   ch_i2c_data=uch_addr;
   
   if(Ql_IIC_Write(1, I2C_WRITE_ADDR, &ch_i2c_data, sizeof(ch_i2c_data)) < 0)
-     return 0;
+     return false;
   if(Ql_IIC_Read(1, I2C_READ_ADDR, &ch_i2c_data, sizeof(ch_i2c_data)) > 0)
   {
      *puch_data=ch_i2c_data;
-     return 1;
+     return true;
   }
   else
-     return 0;
+     return false;
 }
 
 
 
 
-u8 MAX_Init()
+bool MAX_Init()
 { 
   if(maxim_max30102_write_reg(REG_INTR_ENABLE_1,0xc0)==0) // INTR setting
  	return false;

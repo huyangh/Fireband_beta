@@ -98,7 +98,7 @@
 #define REG_REV_ID 0xFE
 #define REG_PART_ID 0xFF
 
-s32 MAX_i2c_init(void);
+void MAX_i2c_init(void);
 u8 MAX_Init(void);
 u8 maxim_max30102_read_fifo(u32 *pun_red_led, u32 *pun_ir_led);
 u8 maxim_max30102_write_reg(u8 uch_addr, u8 uch_data);
