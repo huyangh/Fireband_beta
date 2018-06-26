@@ -54,56 +54,60 @@ void proc_main_task(s32 taskId)
 	s32 n_heart_rate;	//heart rate value
 	s8	ch_hr_valid;	//indicator to show if the heart rate calculation is valid
 	u8 uch_dummy;
-	u32 un_min, un_max;
+	
 
 	
     ST_MSG msg;
 	
-		
-   MAX_i2c_init();
 
-   maxim_max30102_reset();
-   maxim_max30102_read_reg(0,&uch_dummy);	 //read and clear status register
-  
-   MAX_Init();
-   
-   // Register & open UART port
+	// Register & open UART port
     Ql_UART_Register(UART_PORT1, CallBack_UART_Hdlr, NULL);
     Ql_UART_Open(UART_PORT1, 115200, FC_NONE);
 
-    Ql_UART_Register(UART_PORT2, CallBack_UART_Hdlr, NULL);
-    Ql_UART_Open(UART_PORT2, 115200, FC_NONE);
-
-
-	Ql_GPIO_Init(PINNAME_DTR, PINDIRECTION_IN, PINLEVEL_LOW, PINPULLSEL_PULLDOWN);
+   
+	// GPIO initialization
+	Ql_GPIO_Init(PINNAME_DTR, PINDIRECTION_IN, PINLEVEL_LOW, PINPULLSEL_PULLUP);
 	mprintf("<-- Initialize GPIO pin (PINNAME_STATUS): output, high level, pull down -->\r\n");
 
+	// IIC initialization
+	MAX_i2c_init();
+
+    if(maxim_max30102_reset() == 1){
+   		 mprintf("reset success!\r\n");
+    }else{
+    	mprintf("reset failed!\r\n");
+    }
+    if(maxim_max30102_read_reg(0,&uch_dummy) == true){
+   		 mprintf("read and clear success!\r\n");
+	}else{
+		mprintf("read and clear failed!\r\n");
+	}//read and clear status register
 
 
+	// MAX30102 initialization
+    if(MAX_Init() == true){
+		 mprintf("initialization of MAX success!\r\n");
+    }
+   
+   
 
-	
+
 	 n_ir_buffer_length=500;//buffer length of 100 stores 5 seconds of samples running at 100sps
 	   
-	  s32 m;
-	  un_min=0x3FFFF;
-      un_max=0;
+	  s32 m,ret;
+	  
 	  //read the first 500 samples, and determine the signal range
 	  for(m=0;m<n_ir_buffer_length;m++)
 	  {
 		  while(Ql_GPIO_GetLevel(PINNAME_DTR)==1);   //wait until the interrupt pin asserts
 		  
-		  maxim_max30102_read_fifo((aun_red_buffer+m), (aun_ir_buffer+m));
-//		  if(ret == 0)
-//		  	mprintf("read fifo failed!\n");
-		  if(un_min>aun_red_buffer[m])
-            un_min=aun_red_buffer[m];    //update signal min
-          if(un_max<aun_red_buffer[m])
-            un_max=aun_red_buffer[m];    //update signal max
-			  
-			  
+		  ret = maxim_max30102_read_fifo((aun_red_buffer+m), (aun_ir_buffer+m));
+		  if(ret == 0){
+		  	mprintf("read fifo failed!\n");
+		  	}
+		  
 	  }
 
-	  
 	  
 	  //calculate heart rate and SpO2 after first 500 samples (first 5 seconds of samples)
 	  maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
@@ -112,19 +116,15 @@ void proc_main_task(s32 taskId)
 	  while(1)
 	  {
 		  m=0;
-		  un_min=0x3FFFF;
-     	  un_max=0;
+		  
 		  //dumping the first 100 sets of samples in the memory and shift the last 400 sets of samples to the top
 		  for(m=100;m<500;m++)
 		  {
 			  aun_red_buffer[m-100]=aun_red_buffer[m];
 			  aun_ir_buffer[m-100]=aun_ir_buffer[m];
 
-			 //update the signal min and max
-	          if(un_min>aun_red_buffer[m])
-	          un_min=aun_red_buffer[m];
-	          if(un_max<aun_red_buffer[m])
-	          un_max=aun_red_buffer[m];
+			 
+	       
 
 		  }
 		  
@@ -137,10 +137,10 @@ void proc_main_task(s32 taskId)
 		  
 			  //send samples and calculation result to terminal program through UART
 			  mprintf("HR=%d, ", n_heart_rate); 
-			  mprintf("HRvalid=%c, ", ch_hr_valid);
+			  mprintf("HRvalid=%d, ", ch_hr_valid);
 			  mprintf("SpO2=%d, ", n_sp02);
-			  mprintf("SPO2Valid=%c\r\n", ch_spo2_valid);
-			  Ql_Sleep(500);
+			  mprintf("SPO2Valid=%d\r\n", ch_spo2_valid);
+//			  Ql_Sleep(500);
 		  }
 		  maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
 		}

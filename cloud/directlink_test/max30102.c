@@ -11,6 +11,8 @@ void MAX_i2c_init(void)
 	Ql_IIC_Init(1,PINNAME_RI,PINNAME_DCD,true);
 	
 	Ql_IIC_Config(1,TRUE, I2C_WRITE_ADDR, 300);
+
+	Ql_IIC_Config(1,TRUE, I2C_READ_ADDR, 300);
 	
 //
 //	if(ret1 == 	 QL_RET_OK){
@@ -73,7 +75,7 @@ bool maxim_max30102_read_reg(u8 uch_addr, u8 *puch_data)
 {
 
 
-  bool ch_i2c_data;
+  u8 ch_i2c_data;
   ch_i2c_data=uch_addr;
   
   if(Ql_IIC_Write(1, I2C_WRITE_ADDR, &ch_i2c_data, sizeof(ch_i2c_data)) < 0)
@@ -106,7 +108,7 @@ bool MAX_Init()
     return false;
   if(maxim_max30102_write_reg(REG_MODE_CONFIG,0x03)==0)   //0x02 for Red only, 0x03 for SpO2 mode 0x07 multimode LED
     return false;
-  if(maxim_max30102_write_reg(REG_SPO2_CONFIG,0x47)==0)  // SPO2_ADC range = 8192nA, SPO2 sample rate (100 Hz), LED pulseWidth (400uS)
+  if(maxim_max30102_write_reg(REG_SPO2_CONFIG,0x47)==0)  // SPO2_ADC range = 4096nA, SPO2 sample rate (100 Hz), LED pulseWidth (400uS)
     return false;
 
   if(maxim_max30102_write_reg(REG_LED1_PA,0x3f)==0)   //Choose value for ~ 7mA for LED1
@@ -137,8 +139,12 @@ u8 maxim_max30102_read_fifo(u32 *pun_red_led, u32 *pun_ir_led)
   u8 ach_i2c_data[6];
   
   //read and clear status register
-  maxim_max30102_read_reg(REG_INTR_STATUS_1, &uch_temp);
-  maxim_max30102_read_reg(REG_INTR_STATUS_2, &uch_temp);
+  if(maxim_max30102_read_reg(REG_INTR_STATUS_1, &uch_temp)== false){
+  	mprintf("read reg1 failed!");
+  	}
+  if(maxim_max30102_read_reg(REG_INTR_STATUS_2, &uch_temp)== false){
+  	mprintf("read reg2 failed!");
+  	}
   
   ach_i2c_data[0]=REG_FIFO_DATA;
   
