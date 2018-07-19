@@ -23,27 +23,9 @@
  * -------
  *
  *============================================================================
- *             HISTORY
- *----------------------------------------------------------------------------
- * 
- ****************************************************************************/
 
-/******************************************************************************
 
-                  版权所有 (C) 2018, 天创金农科技
 
- ******************************************************************************
-  文件   : main.c
-  版本   : 初稿
-  作者   : LiCM
-  日期   : 2018年02月24日
-  内容   : 创建文件
-  描述   : M203C3.0开发板单线程版本
-
-  修改记录:
-  日期   : 2018年02月24日
-    作者   : LiCM
-    内容   : 创建文件
 
 ******************************************************************************/
 
@@ -92,26 +74,31 @@ void proc_main_task(s32 taskId)
 	        case MSG_ID_RIL_READY:				
 		        {
 		            Ql_RIL_Initialize();				//等待RIL层初始化完成,才可以调用AT CMD指令,用户无需关心
-		            SendMsg2KernelForBLEStart();
-					
-					//Ql_SleepEnable();  
-		            //SendMsg2KernelForBLEStart();		//发送消息给BLE任务,处理BLE数据
-//		         
+					Ql_SleepEnable();
+					SendMsg2KernelForMqttStart();
+				
 		        }
 			 break;
-			case MSG_IOT_TASK_GET_SENSOR_DATA:				
+			case MSG_IOT_TASK_START_SENSOR:				
 		        {
 //		      	   Sensor_Timer_stop(TIMER_ID_USER_START + SENSOR_TIMER_ID, SENSOR_TIMER_MS);
-		         //  StartMAX();
-		         
+		         //  
+		         //Sensor_Timer_init(TIMER_ID_USER_START + SENSOR_TIMER_ID, SENSOR_TIMER_MS);
+				
+				 StartMAX();
+
+				 SendMsg2KernelForIotData();
+				 
 //				   Sensor_Timer_start(TIMER_ID_USER_START + SENSOR_TIMER_ID, SENSOR_TIMER_MS);
 		        }
 			 break;
-			case MSG_IOT_TASK_START_MQTT:
-				   	Mqtt_InitConnect_Start();
-					SendMsg2KernelForIotData();
-				  //Iotdata_Timer_init(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
+
+			 case MSG_IOT_TASK_GET_SENSOR_DATA:
+			 	{
+			 	calcmax(1);
+			 	}
 			 break;
+			
 			case MSG_ID_FTP_RESULT_IND:
 	            mprintf("\r\n<##### Restart FTP 3s later #####>\r\n");
 	            Ql_Sleep(3000);
@@ -148,25 +135,34 @@ void user_mqtt_task(s32 TaskId)
         switch (msg.message)
         {
         	 
-        	 case MSG_IOT_TASK_START_BLE:
-			 	SendMsg2KernelForMqttStart();
+//        	 case MSG_IOT_TASK_START_BLE:
+//			 	SendMsg2KernelForMqttStart();
 //				  //Ble_InitConnect_Start();
 //				  SendMsg2KernelForMqttStart();
 //			 	  //SendMsg2KernelForSensorData();
 //				break;
-			 case MSG_IOT_TASK_Get_ModuData:
-				  GetModuleData();
-	//			  SendMsg2KernelForSensorData();
-				break;
+//			 case MSG_IOT_TASK_Get_ModuData:
+//				  GetModuleData();
+//			  SendMsg2KernelForSensorData();
+//				break;
 			 case MSG_IOT_TASK_HeartDATA_MQTT:				
 			 	   Iotdata_Timer_Stop(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
 		           MqttPubUserHeartData();					//发送心跳数据
 		           Iotdata_Timer_Start(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
 		        break;
+			 case MSG_IOT_TASK_START_MQTT:
+					Mqtt_InitConnect_Start();					
+					Iotdata_Timer_init(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
+			 		SendMsg2KernelForSensorStart();
+				break;
+
 			 case MSG_IOT_TASK_SENDDATA_MQTT:
 			 	   Iotdata_Timer_Stop(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
-		           MqttPubUserSensorData();					//推送上行数据到服务器
-		           Iotdata_Timer_Start(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
+				   mprintf("\r\n Ready to pub user sensor data! \r\n");
+			       SendMsg2KernelForSensorData();
+				   MqttPubUserSensorData();					//推送上行数据到服务器
+				   Iotdata_Timer_Start(TIMER_ID_USER_START + IOTDATA_TIMER_ID, IOTDATA_TIMER_MS);
+				   		       
 		        break;
 			 case MSG_IOT_TASK_REDATA_MQTT:
 				   MqttPubUserReSensorData();

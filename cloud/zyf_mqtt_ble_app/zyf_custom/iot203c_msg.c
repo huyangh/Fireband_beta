@@ -40,7 +40,7 @@ void SendMsg2KernelForMqttStart(void)
 {
 	 if(systemset.snuser)								//只要设置完成 SN号码之后,才可以进行连接
 	 	{
-	 		Ql_OS_SendMessage(main_task_id, MSG_IOT_TASK_START_MQTT, 0, 0);
+	 		Ql_OS_SendMessage(user_mqtt_task_id, MSG_IOT_TASK_START_MQTT, 0, 0);
 	 	}
 }
 
@@ -70,6 +70,12 @@ void SendMsg2KernelForSensorData(void)
 {
 	Ql_OS_SendMessage(main_task_id, MSG_IOT_TASK_GET_SENSOR_DATA, 0, 0);
 }
+
+void SendMsg2KernelForSensorStart(void)
+{
+	Ql_OS_SendMessage(main_task_id, MSG_IOT_TASK_START_SENSOR, 0, 0);
+}
+
 
 void SendMsg2KernelForReIotData(void)
 {

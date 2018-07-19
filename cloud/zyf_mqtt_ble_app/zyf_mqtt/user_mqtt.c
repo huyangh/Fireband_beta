@@ -44,6 +44,8 @@
 #include "zyf_protocol.h"
 #include "user_lmq.h"
 
+#include "max30102.h"
+
 
 #ifdef USER_MQTT_DEBUG
     #define user_mqtt_info(format, ...)  mprintf( format "\r\n", ##__VA_ARGS__)
@@ -617,9 +619,10 @@ static void Callback_led_Timer(u32 timerId, void* param)
 		}
 }
 
-static void Callback_sensor_Timer(u32 timerId, void* param)
+static void Callback_sensor_Timer(u32 timerId, u8 * sendornot)
 {
-	SendMsg2KernelForIotData();
+	
+	//Ql_SleepEnable();
 
 }
 
@@ -704,3 +707,5 @@ void aliot_Timer_init(u32 TIMER_ID, u32 ms)
     Ql_Timer_Start(TIMER_ID, ms, TRUE);
 
 }
+
+

@@ -1,40 +1,12 @@
-#include "ql_trace.h"
-#include "ql_system.h"
-#include "ql_gpio.h"
-#include "ql_stdlib.h"
-#include "ql_error.h"
-#include "ql_uart.h"
-#include "max30102.h"
-#include "algorithm.h"
-#include "uart.h"
 #include "sensordata.h"
-#include "ql_timer.h"
-#include "user_mqtt.h"
-
-
-
-SENSOR_DATA	_sensor_data_new;
-
-
-void CallBack_UART_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bool level, void* customizedPara);
-
 
 
 void StartMAX()
 {
-	u32 aun_ir_buffer[500]; //IR LED sensor data
-	s32 n_ir_buffer_length;    //data length
-	u32 aun_red_buffer[500];	//Red LED sensor data
-	s32 n_sp02; //SPO2 value
-	s8 ch_spo2_valid;	//indicator to show if the SP02 calculation is valid
-	s32 n_heart_rate;	//heart rate value
-	s8	ch_hr_valid;	//indicator to show if the heart rate calculation is valid
-	u8 uch_dummy;
-//	s32 store[2];
-
+	
 	
     ST_MSG msg;
-	
+	u8 uch_dummy;
 
 	// Register & open UART port
     Ql_UART_Register(UART_PORT1, CallBack_UART_Hdlr, NULL);
@@ -53,6 +25,7 @@ void StartMAX()
     }else{
     	mprintf("reset failed!\r\n");
     }
+	
     if(maxim_max30102_read_reg(0,&uch_dummy) == true){
    		 mprintf("read and clear success!\r\n");
 	}else{
@@ -64,9 +37,19 @@ void StartMAX()
     if(MAX_Init() == true){
 		 mprintf("initialization of MAX success!\r\n");
     }
+}
    
-   
-
+void calcmax(u8 calc)
+{
+		u32 aun_ir_buffer[500]; //IR LED sensor data
+		s32 n_ir_buffer_length;    //data length
+		u32 aun_red_buffer[500];	//Red LED sensor data
+		s32 n_sp02; //SPO2 value
+		s8 ch_spo2_valid;	//indicator to show if the SP02 calculation is valid
+		s32 n_heart_rate;	//heart rate value
+		s8	ch_hr_valid;	//indicator to show if the heart rate calculation is valid
+		
+		u8 sendornot;
 
 	 n_ir_buffer_length=500;//buffer length of 100 stores 5 seconds of samples running at 100sps
 	   
@@ -89,11 +72,11 @@ void StartMAX()
 	  maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
 
 
-	  Sensor_Timer_init(TIMER_ID_USER_START + SENSOR_TIMER_ID, SENSOR_TIMER_MS);
+	 
 	  
 	  //Continuously taking samples from MAX30102.	Heart rate and SpO2 are calculated every 1 second
-	  while(1)
-	  {
+//	  while(calc)
+//	  {
 		  m=0;
 		  
 		  //dumping the first 100 sets of samples in the memory and shift the last 400 sets of samples to the top
@@ -116,26 +99,15 @@ void StartMAX()
 		  }
 
 		  Getsensordata(_sensor_data_new, n_heart_rate, n_sp02, ch_hr_valid, ch_spo2_valid);
+		  mprintf("\r\n Get sensor data: hr %d ; spo2: %d.\r\n", n_heart_rate, n_sp02);
 	  		
 		  maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
 
-		  
+//}
       }
 	
-	  
 
-	 while (1)
-    {
-        Ql_OS_GetMessage(&msg);
-        switch(msg.message)
-        {
-        case 0:
-            break;
-        default:
-            break;
-        }
-    } 
-}
+
 
 void Getsensordata(SENSOR_DATA sensordata, s32 hr, s32 spo2,s8 hrvalid, s8 spo2valid){
 

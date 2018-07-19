@@ -72,12 +72,14 @@ typedef struct
 }user_mqtt_info_t;
 
 
+
 extern user_mqtt_info_t user_mqtt_info;
 
 
 
 extern u32 Heart_T;
 extern u32 IotData_T;
+
 
 
 #endif
