@@ -155,10 +155,7 @@ s32 zyf_msg_RegSensor_data(u8 *data_ptr,void *user_data)
 	cJSON_AddItemToObject(root, AutomaticRD[4], cJSON_CreateString(tempbuf));
 	Ql_sprintf(tempbuf,"%d.%06d",LbsJingdu/1000000,LbsJingdu%1000000);
 	cJSON_AddItemToObject(root, AutomaticRD[5], cJSON_CreateString(tempbuf));
-//	Ql_sprintf(tempbuf,"%d",_sensor_data_new.hrdata);
-//    cJSON_AddItemToObject(root, AutomaticRD[8], cJSON_CreateString(tempbuf));
-//	Ql_sprintf(tempbuf,"%d",_sensor_data_new.spo2data );
-//    cJSON_AddItemToObject(root, AutomaticRD[9], cJSON_CreateString(tempbuf));
+
 	buf_String=cJSON_Print(root);
 	len = Ql_strlen(buf_String);
 	Ql_strcpy(data_ptr,buf_String);
@@ -178,8 +175,8 @@ s32 zyf_msg_Sensor_data(u8 *data_ptr,void *user_data)
 	u8 tempbuf[20]={0};
 	cJSON * root =  cJSON_CreateObject();
 	GetModuleData();
-	
-	ret=GetGpsLocation(60,1);
+
+	ret=GetGpsLocation(30,1);
 	if(ret==0)
 		{
 			Ql_sprintf(tempbuf,"%d.%06d",gpsx.latitude/1000000,gpsx.latitude%1000000);
@@ -189,25 +186,21 @@ s32 zyf_msg_Sensor_data(u8 *data_ptr,void *user_data)
 		}
 	else
 		{
-			LBSDataInit();
-			WaitLbsGetLocation(100);
+
 			Ql_sprintf(tempbuf,"%d.%06d",LbsWeidu/1000000,LbsWeidu%1000000);
 			cJSON_AddItemToObject(root, AutomaticRD[4], cJSON_CreateString(tempbuf));
 			Ql_sprintf(tempbuf,"%d.%06d",LbsJingdu/1000000,LbsJingdu%1000000);
 			cJSON_AddItemToObject(root, AutomaticRD[5], cJSON_CreateString(tempbuf));
 		}
-	Ql_sprintf(tempbuf,"%d",module_data.mvol);
-    cJSON_AddItemToObject(root, AutomaticRD[0], cJSON_CreateString(tempbuf));
+//	Ql_sprintf(tempbuf,"%d",module_data.mvol);
+//    cJSON_AddItemToObject(root, AutomaticRD[0], cJSON_CreateString(tempbuf));
 	Ql_sprintf(tempbuf,"%d",module_data.bvol);
     cJSON_AddItemToObject(root, AutomaticRD[1], cJSON_CreateString(tempbuf));
-	Ql_sprintf(tempbuf,"%d",module_data.csq);
-    cJSON_AddItemToObject(root, AutomaticRD[2], cJSON_CreateString(tempbuf));
+//	Ql_sprintf(tempbuf,"%d",module_data.csq);
+//    cJSON_AddItemToObject(root, AutomaticRD[2], cJSON_CreateString(tempbuf));
 	Ql_sprintf(tempbuf,"%d",systemset.SysTime);
     cJSON_AddItemToObject(root, AutomaticRD[3], cJSON_CreateString(tempbuf));
-	Ql_sprintf(tempbuf,"%d",_sensor_data_new.hrdata);
-    cJSON_AddItemToObject(root, AutomaticRD[8], cJSON_CreateString(tempbuf));
-	Ql_sprintf(tempbuf,"%d",_sensor_data_new.spo2data);
-    cJSON_AddItemToObject(root, AutomaticRD[9], cJSON_CreateString(tempbuf));
+
 	
 	buf_String=cJSON_Print(root);
 	len = Ql_strlen(buf_String);
@@ -219,6 +212,30 @@ s32 zyf_msg_Sensor_data(u8 *data_ptr,void *user_data)
 	
 }
 
+
+
+
+s32 zyf_msg_MAX_data(u8 *data_ptr,void *user_data)
+{
+	s32 ret,len;
+    u8 *buf_String;
+	u8 tempbuf[20]={0};
+	cJSON * root =  cJSON_CreateObject();
+	
+	Ql_sprintf(tempbuf,"%d",sensor_data.hrdata);
+    cJSON_AddItemToObject(root, AutomaticRD[8], cJSON_CreateString(tempbuf));
+	Ql_sprintf(tempbuf,"%d",sensor_data.spo2data);
+    cJSON_AddItemToObject(root, AutomaticRD[9], cJSON_CreateString(tempbuf));
+	
+	buf_String=cJSON_Print(root);
+	len = Ql_strlen(buf_String);
+	Ql_strcpy(data_ptr,buf_String);
+	zyf_protocol_info("%s",data_ptr);
+	cJSON_Delete(root);
+	Ql_MEM_Free(buf_String);
+	return len;
+	
+}
 
 s32 zyf_ays_cmd(char *src,char *key,char *value)
 {

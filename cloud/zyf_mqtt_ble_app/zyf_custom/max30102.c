@@ -13,28 +13,6 @@ void MAX_i2c_init(void)
 	Ql_IIC_Config(1,TRUE, I2C_WRITE_ADDR, 300);
 
 	Ql_IIC_Config(1,TRUE, I2C_READ_ADDR, 300);
-	
-//
-//	if(ret1 == 	 QL_RET_OK){
-//   		mprintf("pins(SCL=%d,SDA=%d) IIC controller Ql_IIC_Init channel 1 success ret=%d\r\n",PINNAME_RI,PINNAME_DCD,ret1);
-//    }else if(ret1 == QL_RET_ERR_NOSUPPORTPIN){
-//    	mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is invalid\r\n");
-//	}else if(ret1 == QL_RET_ERR_PINALREADYSUBCRIBE){
-//		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 the input pin is in use in other places\r\n");
-//	}else if(ret1 == QL_RET_ERR_I2CHWFAILED){
-//		mprintf("\r\nFailed!! IIC controller Ql_IIC_Init channel 1 hardware issue\r\n");
-//	}else{
-//		mprintf("unknown issue just can't init!");
-//	}
-//
-//
-//
-//	if(ret3 == QL_RET_OK)
-//	{
-//		mprintf("IIC controller Ql_IIC_Config channel 1 config success ret=%d\r\n",ret3);
-//	}else{
-//		mprintf("IIC controller Ql_IIC_Config channel 1 fail ret=%d\r\n",ret3);
-//	}
 
 }
 

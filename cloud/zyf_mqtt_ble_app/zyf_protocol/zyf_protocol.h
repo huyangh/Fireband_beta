@@ -108,6 +108,8 @@ u8 WzAynsMode(u8 *pbuf);
 
 s32 zyf_msg_register_data(u8 *data_ptr,void *user_data);
 s32 zyf_msg_Sensor_data(u8 *data_ptr,void *user_data);
+s32 zyf_msg_MAX_data(u8 *data_ptr,void *user_data);
+
 s32 zyf_decode_cmd(char *Payload,u16 len);
 
 #endif

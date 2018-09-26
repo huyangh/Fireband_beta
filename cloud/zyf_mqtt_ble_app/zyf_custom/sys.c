@@ -53,7 +53,7 @@ void Delayus(u32 data)
 
 void  LoadDefualtCfg(void)
 {
-	systemset.Interval=100;
+	systemset.Interval=18;
 	systemset.HandInter=60; 
 	systemset.SysTime=0;
 	systemset.saveflag=0x0A;
@@ -61,7 +61,7 @@ void  LoadDefualtCfg(void)
 	systemset.snuser=0;
 	systemset.CallMode=0;
 	systemset.updateinfo=0;
-	Ql_sprintf((char*)systemset.SN,"FFFFFFFFF");
+	Ql_sprintf((char*)systemset.SN,"FFFFFFFFFFFF");
 	
 }
 

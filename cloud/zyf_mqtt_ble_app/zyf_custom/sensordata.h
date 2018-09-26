@@ -11,21 +11,31 @@
 #include "ql_timer.h"
 #include "user_mqtt.h"
 
+//#ifndef __SENSOR_DATA__
+//#define __SENSOR_DATA__
+//
 
-typedef struct{
-	s32  hrdata;
-	s32  spo2data;
-}SENSOR_DATA;
 
-SENSOR_DATA	_sensor_data_new;
+typedef struct
+{
+	s32 hrdata;			//心率数据
+	s32 spo2data;		//血氧数据
+} Sensor_Data;
+
+Sensor_Data sensor_data;
+
+
 
 void StartMAX();
+void CloseMAX();
 
-void calcmax(u8 calc);
+void calcmax(s32 *phr, s32 *pspo2);
 
-void Getsensordata(SENSOR_DATA sensordata, s32 hr, s32 spo2,s8 hrvalid, s8 spo2valid);
 
 void CallBack_UART_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bool level, void* customizedPara);
+
+
+//#endif
 
 
 

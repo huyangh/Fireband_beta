@@ -61,6 +61,11 @@ void SendMsg2KernelForIotData(void)
 	 Ql_OS_SendMessage(user_mqtt_task_id, MSG_IOT_TASK_SENDDATA_MQTT, 0, 0);
 }
 
+void SendMsg2KernelForLocationData(void)
+{
+	Ql_OS_SendMessage(main_task_id, MSG_LOCATION_TASK_START_SEND, 0, 0);
+}
+
 void SendMsg2KernelForModuleData(void)
 {
 	 Ql_OS_SendMessage(user_mqtt_task_id, MSG_IOT_TASK_Get_ModuData, 0, 0);

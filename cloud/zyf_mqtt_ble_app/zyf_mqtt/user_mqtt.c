@@ -43,7 +43,7 @@
 #include "zyf_auto_config.h"
 #include "zyf_protocol.h"
 #include "user_lmq.h"
-
+#include "sensordata.h"
 #include "max30102.h"
 
 
@@ -76,6 +76,8 @@ user_mqtt_param_t user_mqtt_param;										//用户mqtt参数和信息
 USER_MQTT_CLINT_STA_T	user_mqtt_clint_sta=USER_MQTT_PARMA_INIT;		//用户mqtt客户端状态
 
 void *app_pclient=NULL;
+
+s32 hrstore, spo2store;
 
 
 /*!
@@ -491,7 +493,7 @@ void Mqtt_InitConnect_Start(void)
 					                user_mqtt_clint_sta = USER_MQTT_CONNECTING;
 					                break;
 					            }
-							 SendMsg2KernelForIotData();
+//							 SendMsg2KernelForIotData();
 							 user_mqtt_clint_sta = USER_MQTT_CLINT_OK;
 							 user_mqtt_info("USER_MQTT_CLINT_OK");
 							 break;
@@ -528,7 +530,9 @@ void MqttPubUserSensorData(void)
 {
 	int app_retcode = 0;
 	user_mqtt_info("MqttPubUserSensorData");
-	user_mqtt_param.topic_msg.payload_len=zyf_msg_Sensor_data(mqtt_msg_pub,0);
+//	user_mqtt_param.topic_msg.payload_len=zyf_msg_Sensor_data(mqtt_msg_pub,0);
+	user_mqtt_param.topic_msg.payload_len=zyf_msg_MAX_data(mqtt_msg_pub,0);
+
 	app_retcode = aliot_mqtt_publish(app_pclient, topic_for_pub, &user_mqtt_param.topic_msg);
 	if (app_retcode < 0)
 		{
@@ -536,7 +540,28 @@ void MqttPubUserSensorData(void)
             user_mqtt_clint_sta = USER_MQTT_GPRS_INIT;
             SendMsg2KernelForMqttStart();
 			return;
-		}
+		}else{
+			user_mqtt_info("\r\n publish max success! \r\n");
+			}
+}
+
+void MqttPubLocationData(void)
+{
+	int app_retcode = 0;
+	user_mqtt_info("MqttPubLocationData");
+	user_mqtt_param.topic_msg.payload_len=zyf_msg_Sensor_data(mqtt_msg_pub,0);
+
+
+	app_retcode = aliot_mqtt_publish(app_pclient, topic_for_pub, &user_mqtt_param.topic_msg);
+	if (app_retcode < 0)
+		{
+			user_mqtt_error("error %d when publish", app_retcode);
+            user_mqtt_clint_sta = USER_MQTT_GPRS_INIT;
+            SendMsg2KernelForMqttStart();
+			return;
+		}else{
+			user_mqtt_info("\r\n publish location success! \r\n");
+			}
 }
 
 
@@ -579,6 +604,8 @@ static void Callback_Iot_Timer(u32 timerId, void* param)
 {
 	u32 t1=systemset.HandInter/10;
 	u32 t2=systemset.Interval/10;
+	u32 t3;
+	u32 t4;
 	if(t1<1)t1=1;
 	if(t2<1)t2=1;
 	if(user_mqtt_clint_sta==USER_MQTT_CLINT_OK)
@@ -588,13 +615,27 @@ static void Callback_Iot_Timer(u32 timerId, void* param)
 			if(Heart_T>=t1)
 				{
 					Heart_T=0;
+					
 					SendMsg2KernelForIotHeart();
 				}
 			if(IotData_T>=t2)
 				{
 					IotData_T=0;
 					Heart_T=0;							//取消最近一次心跳
-					SendMsg2KernelForIotData();
+					mprintf("\r\n sensorstart msg received.\r\n");
+					StartMAX();
+					LED2_H;
+
+					calcmax(&t3, &t4);
+					sensor_data.hrdata = t3;
+					sensor_data.spo2data = t4;
+					mprintf("\r\n Get sensor data new: hr %d ; spo2: %d.\r\n", sensor_data.hrdata, sensor_data.spo2data);
+					CloseMAX();
+					LED2_L;
+//					SendMsg2KernelForIotData();
+					MqttPubUserSensorData();
+
+//					mprintf("\r\n IotData msg sent.\r\n");
 				}
 		}
 }
@@ -619,10 +660,10 @@ static void Callback_led_Timer(u32 timerId, void* param)
 		}
 }
 
-static void Callback_sensor_Timer(u32 timerId, u8 * sendornot)
+static void Callback_location_Timer(u32 timerId, void *param)
 {
-	
-	//Ql_SleepEnable();
+
+	MqttPubLocationData();
 
 }
 
@@ -651,21 +692,13 @@ void Led_Timer_init(u32 TIMER_ID, u32 ms)
     Ql_Timer_Start(TIMER_ID,ms,TRUE);
 }
 
-void Sensor_Timer_init(u32 TIMER_ID, u32 ms)
+void Locdata_Timer_init(u32 TIMER_ID, u32 ms)
 {
-	Ql_Timer_Register(TIMER_ID, Callback_sensor_Timer, NULL);
+	
+	Ql_Timer_Register(TIMER_ID, Callback_location_Timer, NULL);
 	Ql_Timer_Start(TIMER_ID, ms, TRUE);
 }
 
-void Sensor_Timer_start(u32 TIMER_ID, u32 ms)
-{
-	Ql_Timer_Start(TIMER_ID, ms, TRUE);
-}
-
-void Sensor_Timer_stop(u32 TIMER_ID, u32 ms)
-{
-	Ql_Timer_Stop(TIMER_ID, ms, TRUE);
-}
 
 
 

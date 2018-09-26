@@ -263,8 +263,8 @@ void User_Commad_Ays(u8* buf, u8 len)
 		systemset.snuser=1;
         SaveFlashParamsNew(&systemset);
         mprintf("+SN %s\r\n", (u8*)systemset.SN);
-		ble_server_sta=BLESERVER_DEVICE_PREINIT0;
-		SendMsg2KernelForBLEStart();
+//		ble_server_sta=BLESERVER_DEVICE_PREINIT0;
+		SendMsg2KernelForMqttStart();
     }
 
 	p=(u8*)strstr((const char*)buf,"^^sethrt");
@@ -313,11 +313,7 @@ void User_Commad_Ays(u8* buf, u8 len)
 			GetSysTime(&time);
 			mprintf("+time ok\r\n");
 		}
-	p=(u8*)strstr((const char *)buf,"ceshi");
-	if(p!=NULL)
-		{
-			mprintf("+ceshi ok\r\n");
-		}
+	
 }
 
 void Uart2UserCommandEncode(u8* buf, u8 len)
