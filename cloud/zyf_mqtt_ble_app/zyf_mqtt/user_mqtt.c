@@ -612,14 +612,18 @@ static void Callback_Iot_Timer(u32 timerId, void* param)
 		{
 			Heart_T++;
 			IotData_T++;
-			if(Heart_T>=t1)
-				{
+			if(Heart_T>=t1)
+
+				{
+
 					Heart_T=0;
 					
 					SendMsg2KernelForIotHeart();
 				}
-			if(IotData_T>=t2)
-				{
+			if(IotData_T>=t2)
+
+				{
+
 					IotData_T=0;
 					Heart_T=0;							//取消最近一次心跳
 					mprintf("\r\n sensorstart msg received.\r\n");
