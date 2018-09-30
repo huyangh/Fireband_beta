@@ -55,4 +55,6 @@ s32 GpsOpen(void);
 s32 GpsClose(void);
 s32 GetGpsData(u8 *buf,u8 *name);
 s32 GetModuleLocation(u32 gpstimeout,u8 op);
+void Callback_Location(s32 result, ST_LocInfo* loc_info);
+
 #endif

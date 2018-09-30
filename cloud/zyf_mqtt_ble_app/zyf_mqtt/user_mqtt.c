@@ -548,7 +548,7 @@ void MqttPubUserSensorData(void)
 void MqttPubLocationData(void)
 {
 	int app_retcode = 0;
-	user_mqtt_info("MqttPubLocationData");
+	user_mqtt_info("MqttGetLocationData");
 	user_mqtt_param.topic_msg.payload_len=zyf_msg_Sensor_data(mqtt_msg_pub,0);
 
 
@@ -560,7 +560,7 @@ void MqttPubLocationData(void)
             SendMsg2KernelForMqttStart();
 			return;
 		}else{
-			user_mqtt_info("\r\n publish location success! \r\n");
+			user_mqtt_info("\r\n get location success! \r\n");
 			}
 }
 

@@ -53,7 +53,7 @@ void foto_init_param(char *addr,char *name,char *password,char *PATH,char *filen
 void fota_init(void)
 {
 	Ql_sprintf(fotainfo.FTP_SVR_ADDR,"211.159.175.43");
-	Ql_sprintf(fotainfo.FTP_USER_NAME,"hello");
+	Ql_sprintf(fotainfo.FTP_USER_NAME,"huyangh");
 	Ql_sprintf(fotainfo.FTP_PASSWORD,"123456");
 	Ql_sprintf(fotainfo.FTP_SVR_PATH,"/m203c/");
 	Ql_sprintf(fotainfo.FTP_FILENAME,"1.bin");

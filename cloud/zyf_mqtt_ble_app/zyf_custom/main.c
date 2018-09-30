@@ -79,7 +79,6 @@ void proc_main_task(s32 taskId)
 					
 					SendMsg2KernelForMqttStart();
 					
-					
 		        }
 			 break;
 			case MSG_LOCATION_TASK_START_SEND:				

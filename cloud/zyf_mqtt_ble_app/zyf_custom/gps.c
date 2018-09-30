@@ -7,6 +7,7 @@
 #include "ql_stdlib.h"
 #include "ql_error.h"
 #include "ril_gps.h"
+#include "ril_location.h"
 #include "gps.h"
 #include "uart.h"
 #include "sys.h"
@@ -491,7 +492,7 @@ s32 GetModuleLocation(u32 gpstimeout,u8 op)
 	if(iRet<0)
 		{
 			mprintf("GetGpsLocation Fail\r\n");
-			iRet = RIL_GetLocation(MyCallback_Location);
+			iRet = RIL_GetLocation(Callback_Location);
 			if(iRet!=RIL_AT_SUCCESS)
 				{
 					mprintf("Ql_Getlocation error  ret=%d\r\n",iRet);
